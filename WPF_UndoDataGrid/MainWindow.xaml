@@ -30,7 +30,7 @@
                 <Button x:Name="AddButton"
                 Content="Add"
                 FontSize="30"
-                Click="OnAddRowClick"
+                Click="AddRowClick"
                 Height="50" Width="200" />
                 <StackPanel >
                 <Button x:Name="UndoButton" Height="50" Width="200" 
@@ -43,6 +43,19 @@ DockPanel.Dock="Bottom"/>
 DockPanel.Dock="Bottom"/>
                 </StackPanel>
             </StackPanel>
+            <GridSplitter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+            <Button x:Name="CellUndoButton" Height="50" Width="200" 
+Content="CellUndo" FontSize="30"
+Click="CellUndoButton_Click"
+/>
+            <Button x:Name="CellRedoButton" Height="50" Width="200" 
+Content="CellRedo" FontSize="30"
+Click="CellRedoButton_Click"
+/>
+            </StackPanel>
         </DockPanel>
+
+        
     </Grid>
 </Window>

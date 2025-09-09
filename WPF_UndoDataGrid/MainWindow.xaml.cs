@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using WPF_UndoDataGrid.classes;
+using WPF_UndoDataGrid.classes.WPF_UndoDataGrid;
 
 
 
@@ -16,15 +18,55 @@ namespace WPF_UndoDataGrid
         // ---- Undo用の1レコード ----
         private readonly UndoManager _undoManager = new UndoManager();
 
-        IList<Person> _itemsorce;
+        private readonly CellUndoManager _CellundoManager = new CellUndoManager();
+
+
+        readonly IList<Person> _itemsorce;
 
         public MainWindow()
         {
             InitializeComponent();
 
             _itemsorce = People;
+
+            datagrid1.CellEditEnding += Datagrid1_CellEditEnding;
         }
 
+        private void Datagrid1_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction != DataGridEditAction.Commit)
+                return;
+
+            // 編集前後の値を取り出す
+            var binding = (e.Column as DataGridBoundColumn)?.Binding as System.Windows.Data.Binding;
+            if (binding == null) return;
+
+            PropertyInfo? prop = e.Row.Item.GetType().GetProperty(binding.Path.Path);
+            if (prop == null) return;
+
+            var oldValue = prop.GetValue(e.Row.Item);
+
+            // EditingElement から新しい値を取得
+            string? newText = null;
+            if (e.EditingElement is TextBox tb)
+                newText = tb.Text;
+
+            object? newValue = newText;
+            if (prop.PropertyType != typeof(string) && newText != null)
+            {
+                // 型変換
+                newValue = Convert.ChangeType(newText, prop.PropertyType);
+            }
+
+            // Undo/Redo用 Change を作成
+            var change = new ChangeCell(
+                new DataGridCellInfo(e.Row.Item, e.Column),
+                oldValue,
+                newValue
+            );
+
+            _CellundoManager.AddCellChange(change);
+        }
 
         public ObservableCollection<Person> People { get; } = new()
         {
@@ -35,7 +77,7 @@ namespace WPF_UndoDataGrid
 
 
 
-        private void OnAddRowClick(object sender, RoutedEventArgs e)
+        private void AddRowClick(object sender, RoutedEventArgs e)
         {
             var newPerson = RandomPerson();
 
@@ -97,6 +139,16 @@ namespace WPF_UndoDataGrid
         private void RedoButton_Click(object sender, RoutedEventArgs e)
         {
             _undoManager.Redo();
+        }
+
+        private void CellUndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _CellundoManager.CellUndo();
+        }
+
+        private void CellRedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _CellundoManager.CellRedo();
         }
     }
 }
