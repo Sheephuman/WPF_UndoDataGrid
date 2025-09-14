@@ -16,9 +16,9 @@ namespace WPF_UndoDataGrid
     {
 
         // ---- Undo用の1レコード ----
-        private readonly UndoManager _undoManager = new UndoManager();
+        private readonly UndoManager<ChangeGrid> _undoManager = new UndoManager<ChangeGrid>();
 
-        private readonly CellUndoManager _CellundoManager = new CellUndoManager();
+        private readonly UndoManager<ChangeCell> _CellundoManager = new UndoManager<ChangeCell>();
 
 
         readonly IList<Person> _itemsorce;
@@ -65,7 +65,7 @@ namespace WPF_UndoDataGrid
                 newValue
             );
 
-            _CellundoManager.AddCellChange(change);
+            _CellundoManager.AddChange(change);
         }
 
         public ObservableCollection<Person> People { get; } = new()
@@ -143,12 +143,12 @@ namespace WPF_UndoDataGrid
 
         private void CellUndoButton_Click(object sender, RoutedEventArgs e)
         {
-            _CellundoManager.CellUndo();
+            _CellundoManager.Undo();
         }
 
         private void CellRedoButton_Click(object sender, RoutedEventArgs e)
         {
-            _CellundoManager.CellRedo();
+            _CellundoManager.Redo();
         }
     }
 }

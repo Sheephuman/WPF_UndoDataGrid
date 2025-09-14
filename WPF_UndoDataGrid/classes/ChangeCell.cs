@@ -21,7 +21,7 @@
         /// - DataGrid の UI 更新やバインディング制御
         /// - 行追加/削除（それは ChangeGrid が担当）
         /// </summary>
-        public class ChangeCell
+        public class ChangeCell : IChangeAction
         {
 
             /// <summary>

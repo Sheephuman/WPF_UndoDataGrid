@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using WPF_UndoDataGrid;
+using WPF_UndoDataGrid.classes;
 
 
 
@@ -19,7 +20,7 @@ using WPF_UndoDataGrid;
 /// - DataGrid の UI 更新やバインディング制御
 /// - 複数変更のまとめ（トランザクション管理）
 /// </summary>
-public class ChangeGrid
+public class ChangeGrid : IChangeAction
 {
     public DataGridCellInfo Cell { get; }
     public object? OldValue { get; }
