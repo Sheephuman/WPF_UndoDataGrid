@@ -60,7 +60,8 @@ public class ChangeGrid : IChangeAction
         {
             if (NewValue is null)
                 throw new Exception("NewValue is null");
-            _itemsSource.Remove((Person)NewValue); // Undo 行追加
+            _itemsSource.Remove((Person)NewValue);
+
         }
         else
         {
@@ -102,8 +103,12 @@ public class ChangeGrid : IChangeAction
             var binding = boundColumn.Binding as System.Windows.Data.Binding;
             if (binding == null) return;
 
+
+            // バインディング対象のプロパティが見つからない場合は
+            // 「セル編集操作」ではないと判断して終了
             var prop = cellInfo.Item.GetType().GetProperty(binding.Path.Path);
             if (prop == null) return;
+
 
             if (value is null)
                 throw new Exception("Value is null");
