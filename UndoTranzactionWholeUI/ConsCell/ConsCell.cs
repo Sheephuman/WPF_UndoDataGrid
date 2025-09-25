@@ -1,4 +1,4 @@
-﻿namespace WPF_UndoDataGrid.classes
+﻿namespace UndoTranzactionWholeUI
 {
 
     /// <summary>
