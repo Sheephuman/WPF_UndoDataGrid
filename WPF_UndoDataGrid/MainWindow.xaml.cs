@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using WPF_UndoDataGrid.classes;
-using WPF_UndoDataGrid.classes.WPF_UndoDataGrid;
 
 
 
@@ -16,9 +15,9 @@ namespace WPF_UndoDataGrid
     {
 
         // ---- Undo用の1レコード ----
-        private readonly UndoManager<ChangeGrid> _undoManager = new UndoManager<ChangeGrid>();
+        private readonly UndoManager<ChangeRowWithAbstract> _undoManager = new UndoManager<ChangeRowWithAbstract>();
 
-        private readonly UndoManager<ChangeCell> _CellundoManager = new UndoManager<ChangeCell>();
+        private readonly UndoManager<ChangeCellwithAbstract> _CellundoManager = new UndoManager<ChangeCellwithAbstract>();
 
 
         readonly IList<Person> _itemsorce;
@@ -59,10 +58,11 @@ namespace WPF_UndoDataGrid
             }
 
             // Undo/Redo用 Change を作成
-            var change = new ChangeCell(
+            var change = new ChangeCellwithAbstract(
                 new DataGridCellInfo(e.Row.Item, e.Column),
                 oldValue,
-                newValue
+                newValue,
+                People
             );
 
             _CellundoManager.AddChange(change);
@@ -81,18 +81,19 @@ namespace WPF_UndoDataGrid
         {
             var newPerson = RandomPerson();
 
-            People.Add(newPerson);
 
-            datagrid1.ItemsSource = People;
 
             // Change を作る（行追加なので oldValue = null）
-            var change = new ChangeGrid(
+            var change = new ChangeRowWithAbstract(
                 new DataGridCellInfo(newPerson, datagrid1.Columns[0]),
                 oldValue: null,
                 newValue: newPerson,
-               itemsorece: People // IList を渡す
-            );
+                itemsSource: People
 
+            );
+            // 2. UndoStack に積む
+            change.Apply();                              // 3. 実際に People に追加
+            datagrid1.ItemsSource = People;              // 4. DataGrid 更新
 
             _undoManager.AddChange(change);
         }

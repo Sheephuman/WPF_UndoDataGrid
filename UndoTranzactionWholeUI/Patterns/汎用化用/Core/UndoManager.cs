@@ -1,4 +1,6 @@
-﻿namespace WPF_UndoDataGrid.classes
+﻿using UndoTransaction_SnapShot.Generics.Container;
+
+namespace UndoTransaction_SnapShot
 {
     /// <summary>
     /// Undo/Redo を管理するジェネリッククラス

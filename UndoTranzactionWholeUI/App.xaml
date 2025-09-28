@@ -1,8 +1,8 @@
-﻿<Application x:Class="UndoTranzactionWholeUI.App"
+﻿<Application x:Class="UndoTransaction_SnapShot.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:UndoTranzactionWholeUI"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:UndoTransaction_SnapShot"
+             StartupUri="MVVM/View/MainWindow.xaml">
     <Application.Resources>
          
     </Application.Resources>

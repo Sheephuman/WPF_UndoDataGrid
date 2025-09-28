@@ -1,4 +1,4 @@
-﻿namespace UndoTranzactionWholeUI
+﻿namespace UndoTransaction_SnapShot.Generics.Container
 {
 
     /// <summary>
@@ -12,15 +12,12 @@
     /// 【特徴】
     /// - イミュータブル設計（既存セルを変更せず、新しいセルを作成する）
     /// - 空リスト判定 (IsEmpty) が可能
-    /// - Stack / UndoRedo の履歴構造などに利用しやすい
-    ///
-    /// 【非責務】
-    /// - 標準コレクションの変更操作（Add, Clear, Remove は未対応）
+    /// - Stack / UndoRedo の履歴構造などに利用しやすい   
     /// </summary>
-    public class ConsCell<T> : ICollection<T>
+    public class ConsCell<IChangeAction> : ICollection<IChangeAction>
     {
-        private readonly T? head;
-        private readonly ConsCell<T>? tail;
+        private readonly IChangeAction? head;
+        private readonly ConsCell<IChangeAction>? tail;
         private readonly bool isTerminal;
 
         /// <summary>
@@ -34,7 +31,7 @@
         /// <summary>
         /// 値と次のセルを指定して新しい ConsCell を作成する
         /// </summary>
-        public ConsCell(T value, ConsCell<T> tail)
+        public ConsCell(IChangeAction value, ConsCell<IChangeAction> tail)
         {
             this.head = value;
             this.tail = tail;
@@ -43,24 +40,15 @@
         /// <summary>
         /// IEnumerable から ConsCell を構築する
         /// </summary>
-        public ConsCell(IEnumerable<T> source)
-            : this(EnsureNotNull(source).GetEnumerator())
-        {
-        }
 
-        private static IEnumerable<T> EnsureNotNull(IEnumerable<T> source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            return source;
-        }
 
-        private ConsCell(IEnumerator<T> itor)
+
+        private ConsCell(IEnumerator<IChangeAction> itor)
         {
             if (itor.MoveNext())
             {
                 this.head = itor.Current;
-                this.tail = new ConsCell<T>(itor);
+                this.tail = new ConsCell<IChangeAction>(itor);
             }
             else
             {
@@ -76,7 +64,7 @@
         /// <summary>
         /// 先頭要素を取得（空リストなら例外）
         /// </summary>
-        public T Head
+        public IChangeAction Head
         {
             get
             {
@@ -89,7 +77,7 @@
         /// <summary>
         /// 残りのリストを取得（空リストなら例外）
         /// </summary>
-        public ConsCell<T> Tail
+        public ConsCell<IChangeAction> Tail
         {
             get
             {
@@ -107,12 +95,18 @@
         /// <summary>
         /// 新しい要素を先頭に追加し、新しい ConsCell を返す
         /// </summary>
-        public ConsCell<T> Push(T head) => new ConsCell<T>(head, this);
+        public ConsCell<IChangeAction> Push(IChangeAction head) => new ConsCell<IChangeAction>(head, this);
+
+        internal ConsCell<IChangeAction> CompositePush(
+    IChangeAction head,
+    ConsCell<IChangeAction> tail
+) => new ConsCell<IChangeAction>(head, tail);
+
 
         /// <summary>
         /// このリストの末尾に別のリストを連結する
         /// </summary>
-        public ConsCell<T> Concat(ConsCell<T> second)
+        public ConsCell<IChangeAction> Concat(ConsCell<IChangeAction> second)
         {
             if (this.isTerminal || head is null)
                 return second;
@@ -122,9 +116,9 @@
         /// <summary>
         /// 要素を含むかどうか
         /// </summary>
-        public bool Contains(T item)
+        public bool Contains(IChangeAction item)
         {
-            for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
+            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
             {
                 if (p.head == null && item == null) return true;
                 if (p.head != null && p.head.Equals(item)) return true;
@@ -140,7 +134,7 @@
             get
             {
                 int c = 0;
-                for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
+                for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
                 {
                     c++;
                 }
@@ -152,9 +146,9 @@
         /// <summary>
         /// foreach に対応
         /// </summary>
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<IChangeAction> GetEnumerator()
         {
-            for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
+            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
             {
                 if (p.head is null) throw new ArgumentException();
                 yield return p.head;
@@ -168,11 +162,13 @@
 
         #region ICollection<T> 実装（読み取り専用）
 
-        bool ICollection<T>.IsReadOnly => true;
+        bool ICollection<IChangeAction>.IsReadOnly => true;
 
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
+        public bool IsReadOnly => throw new NotImplementedException();
+
+        void ICollection<IChangeAction>.CopyTo(IChangeAction[] array, int arrayIndex)
         {
-            for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
+            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
             {
                 if (array.Length <= arrayIndex)
                     throw new ArgumentOutOfRangeException(nameof(arrayIndex));
@@ -182,9 +178,46 @@
             }
         }
 
-        void ICollection<T>.Add(T item) => throw new NotSupportedException();
-        void ICollection<T>.Clear() => throw new NotSupportedException();
-        bool ICollection<T>.Remove(T item) => throw new NotSupportedException();
+        void ICollection<IChangeAction>.Add(IChangeAction item) => throw new NotSupportedException();
+        void ICollection<IChangeAction>.Clear() => throw new NotSupportedException();
+        bool ICollection<IChangeAction>.Remove(IChangeAction item) => throw new NotSupportedException();
+
+        public void Apply()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Revert()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(IChangeAction item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(IChangeAction[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(IChangeAction item)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<IChangeAction> IEnumerable<IChangeAction>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+
 
         #endregion
     }

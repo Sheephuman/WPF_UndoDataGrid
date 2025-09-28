@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace UndoTranzactionWholeUI
+namespace UndoTransaction_SnapShot
 {
     /// <summary>
     /// Interaction logic for App.xaml

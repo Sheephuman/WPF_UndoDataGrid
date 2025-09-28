@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_UndoDataGrid", "WPF_UndoDataGrid\WPF_UndoDataGrid.csproj", "{883EFB58-D3BD-492C-B588-D72AE20AC2A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndoTranzactionWholeUI", "UndoTranzactionWholeUI\UndoTranzactionWholeUI.csproj", "{8C980668-8D0A-4219-90D7-ED2F850F40FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndoTransaction_SnapShot", "UndoTranzactionWholeUI\UndoTransaction_SnapShot.csproj", "{8C980668-8D0A-4219-90D7-ED2F850F40FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

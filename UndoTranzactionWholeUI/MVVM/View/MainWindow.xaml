@@ -1,0 +1,73 @@
+﻿<Window x:Class="UndoTransaction_SnapShot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UndoTransaction_SnapShot"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=" *"/>
+            <ColumnDefinition Width=" 4*"/>
+
+
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Width="Auto" Orientation="Vertical" VerticalAlignment="Top">
+    
+    
+    <Button x:Name="SnapSHotButton" Content="SnapSHot"             
+Margin="0,28,0,28" FontSize="20" Click="SnapSHotButton_Click"
+  />
+            <Border x:Name="sss" />
+
+            <Button x:Name="UndoButton" Content="Undo"  
+            Margin="8" FontSize="20" Click="UndoButton_Click"/>
+            <Button x:Name="RedoButton" Content="Redo" 
+            Margin="8" FontSize="20" Click="RedoButton_Click"/>
+
+            <Button x:Name="UndoTransActionButton" 
+            Height="60"
+ Margin="8" FontSize="20" Click="UndoTransActionButton_Click">
+                <TextBlock>
+        Undo<LineBreak/>
+        TransAction
+                </TextBlock>
+            </Button>
+
+            <Button x:Name="AddDataButton" Content="Add Data" 
+ Margin="8" FontSize="20" Click="AddDataButton_Click"/>
+
+
+        </StackPanel>
+
+        <DockPanel LastChildFill="False" Grid.Column="1">
+            
+
+            <DataGrid
+            DockPanel.Dock="Top"
+            Height="300"
+            x:Name="datagrid1"
+
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  ItemsSource="{Binding People}"
+                  
+                  CellEditEnding="OnCellEditEnding">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="2*"/>
+                <DataGridTextColumn Header="Age"  Binding="{Binding Age,  UpdateSourceTrigger=LostFocus}" Width="*"/>
+                <DataGridTextColumn Header="City" Binding="{Binding City, UpdateSourceTrigger=LostFocus}" Width="2*"/>
+            </DataGrid.Columns>
+
+
+        </DataGrid>
+            <TextBox x:Name="myTextBox" Width="200" Height="100"/>
+        </DockPanel>
+
+
+    </Grid>
+    
+</Window>
