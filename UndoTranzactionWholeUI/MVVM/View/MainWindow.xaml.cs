@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using AdapterInterface;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using UndoTransaction_SnapShot.CompositeAction;
@@ -42,14 +43,10 @@ namespace UndoTransaction_SnapShot
         private void SnapSHotButton_Click(object sender, RoutedEventArgs e)
         {
 
+            _undoManager.Snap(People);
 
-            // その時点の People をディープコピー
-            var copy = new ObservableCollection<Person>(
-                People.Select(p => new Person { Name = p.Name, Age = p.Age, City = p.City })
-            );
 
-            // Stack に保存
-            _snapShotStack = _snapShotStack.Push(copy);
+
 
         }
 
@@ -129,21 +126,13 @@ namespace UndoTransaction_SnapShot
 
             // _undoManager.ConectUndo(currentStack, snap);
             // スタックを1つ戻す
-            _snapShotStack = _snapShotStack.Tail;
+            // _snapShotStack = _snapShotStack.Tail;
 
 
 
         }
-        private Person Clone(Person p)
-        {
-            if (p == null) throw new ArgumentNullException(nameof(p));
 
-            return new Person
-            {
-                Name = p.Name,
-                Age = p.Age,
-                City = p.City
-            };
-        }
+
+
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace UndoTransaction_SnapShot.Generics.Container
+﻿using AdapterInterface;
+using System.Text;
+
+namespace UndoTransaction_SnapShot.Generics.Container
 {
 
     /// <summary>
@@ -14,10 +17,10 @@
     /// - 空リスト判定 (IsEmpty) が可能
     /// - Stack / UndoRedo の履歴構造などに利用しやすい   
     /// </summary>
-    public class ConsCell<IChangeAction> : ICollection<IChangeAction>
+    public class ConsCell<T> : ICollection<T>
     {
-        private readonly IChangeAction? head;
-        private readonly ConsCell<IChangeAction>? tail;
+        private readonly T? head;
+        private readonly ConsCell<T>? tail;
         private readonly bool isTerminal;
 
         /// <summary>
@@ -28,13 +31,24 @@
             this.isTerminal = true;
         }
 
+
+        private int _index { get; }
+
+
         /// <summary>
         /// 値と次のセルを指定して新しい ConsCell を作成する
         /// </summary>
-        public ConsCell(IChangeAction value, ConsCell<IChangeAction> tail)
+        public ConsCell(T value, ConsCell<T> tail)
         {
             this.head = value;
             this.tail = tail;
+        }
+
+        public ConsCell(T value, ConsCell<T> tail, int index)
+        {
+            this.head = value;
+            this.tail = tail;
+            _index = index;
         }
 
         /// <summary>
@@ -43,12 +57,12 @@
 
 
 
-        private ConsCell(IEnumerator<IChangeAction> itor)
+        private ConsCell(IEnumerator<T> itor)
         {
             if (itor.MoveNext())
             {
                 this.head = itor.Current;
-                this.tail = new ConsCell<IChangeAction>(itor);
+                this.tail = new ConsCell<T>(itor);
             }
             else
             {
@@ -64,7 +78,7 @@
         /// <summary>
         /// 先頭要素を取得（空リストなら例外）
         /// </summary>
-        public IChangeAction Head
+        public T Head
         {
             get
             {
@@ -77,7 +91,7 @@
         /// <summary>
         /// 残りのリストを取得（空リストなら例外）
         /// </summary>
-        public ConsCell<IChangeAction> Tail
+        public ConsCell<T> Tail
         {
             get
             {
@@ -95,18 +109,18 @@
         /// <summary>
         /// 新しい要素を先頭に追加し、新しい ConsCell を返す
         /// </summary>
-        public ConsCell<IChangeAction> Push(IChangeAction head) => new ConsCell<IChangeAction>(head, this);
+        public ConsCell<T> Push(T head) => new ConsCell<T>(head, this, 0);
 
-        internal ConsCell<IChangeAction> CompositePush(
-    IChangeAction head,
-    ConsCell<IChangeAction> tail
-) => new ConsCell<IChangeAction>(head, tail);
+        internal ConsCell<T> CompositePush(
+    T head,
+    ConsCell<T> tail
+) => new ConsCell<T>(head, tail);
 
 
         /// <summary>
         /// このリストの末尾に別のリストを連結する
         /// </summary>
-        public ConsCell<IChangeAction> Concat(ConsCell<IChangeAction> second)
+        public ConsCell<T> Concat(ConsCell<T> second)
         {
             if (this.isTerminal || head is null)
                 return second;
@@ -116,9 +130,9 @@
         /// <summary>
         /// 要素を含むかどうか
         /// </summary>
-        public bool Contains(IChangeAction item)
+        public bool Contains(T item)
         {
-            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
+            for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
             {
                 if (p.head == null && item == null) return true;
                 if (p.head != null && p.head.Equals(item)) return true;
@@ -134,7 +148,7 @@
             get
             {
                 int c = 0;
-                for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
+                for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
                 {
                     c++;
                 }
@@ -146,14 +160,30 @@
         /// <summary>
         /// foreach に対応
         /// </summary>
-        public IEnumerator<IChangeAction> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
-            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
+            for (ConsCell<T> p = this; !p.isTerminal; p = p.tail!)
             {
                 if (p.head is null) throw new ArgumentException();
                 yield return p.head;
             }
         }
+
+
+        public override string ToString()
+        {
+            if (IsEmpty) return "Empty";
+
+            // デバッグ用に Index を付けて出力
+            var sb = new StringBuilder();
+            int idx = 0;
+            foreach (var item in this)
+            {
+                sb.AppendLine($"[{idx++}] {item}");
+            }
+            return sb.ToString();
+        }
+
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
 
@@ -162,25 +192,11 @@
 
         #region ICollection<T> 実装（読み取り専用）
 
-        bool ICollection<IChangeAction>.IsReadOnly => true;
 
         public bool IsReadOnly => throw new NotImplementedException();
 
-        void ICollection<IChangeAction>.CopyTo(IChangeAction[] array, int arrayIndex)
-        {
-            for (ConsCell<IChangeAction> p = this; !p.isTerminal; p = p.tail!)
-            {
-                if (array.Length <= arrayIndex)
-                    throw new ArgumentOutOfRangeException(nameof(arrayIndex));
 
-                if (p.head is null) throw new ArgumentException();
-                array[arrayIndex++] = p.head;
-            }
-        }
 
-        void ICollection<IChangeAction>.Add(IChangeAction item) => throw new NotSupportedException();
-        void ICollection<IChangeAction>.Clear() => throw new NotSupportedException();
-        bool ICollection<IChangeAction>.Remove(IChangeAction item) => throw new NotSupportedException();
 
         public void Apply()
         {
@@ -212,13 +228,48 @@
             throw new NotImplementedException();
         }
 
-        IEnumerator<IChangeAction> IEnumerable<IChangeAction>.GetEnumerator()
+
+
+        public void Add(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Apply(T target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Revert(T target)
         {
             throw new NotImplementedException();
         }
 
 
 
+
         #endregion
+    }
+
+    internal interface IChangeAction<T>
+    {
+        void Apply(T target);
+        void Revert(T target);
     }
 }

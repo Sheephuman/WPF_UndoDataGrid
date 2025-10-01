@@ -1,4 +1,9 @@
-﻿using UndoTransaction_SnapShot.Generics.Container;
+﻿using AdapterInterface;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using UndoTransaction_SnapShot.Generics.Container;
+using UndoTransaction_SnapShot.MVVM.Model;
+using UndoTransaction_SnapShot.Patterns.汎用化用.Core;
 
 namespace UndoTransaction_SnapShot
 {
@@ -20,7 +25,12 @@ namespace UndoTransaction_SnapShot
         public void AddChange(T change)
         {
             undoStack = undoStack.Push(change);
+            index++;
             redoStack = new ConsCell<T>(); // 新規操作でRedoはクリア
+
+            DumpStacks();
+
+
         }
 
         /// <summary>
@@ -52,14 +62,53 @@ namespace UndoTransaction_SnapShot
             redoStack = redoStack.Tail;
             undoStack = undoStack.Push(change);
         }
-    }
 
-    /// <summary>
-    /// Undo/Redo 対象の共通インターフェース
-    /// </summary>
-    public interface IChangeAction
-    {
-        void Apply();
-        void Revert();
+        int index = 0;
+
+        internal void Snap(ObservableCollection<Person> people)
+        {
+
+            // その時点の People をディープコピー
+            var copy = new ObservableCollection<Person>(
+                people.Select(p => new Person { Name = p.Name, Age = p.Age, City = p.City })
+            );
+
+            foreach (var p in copy)
+                Debug.WriteLine($"{p.Name}, {p.Age}, {p.City}");
+
+            // SnapShotAction にラップして渡す
+            var act = new SnapShotAction<Person>(
+                people,
+                new ConsCell<ObservableCollection<Person>>(copy, new ConsCell<ObservableCollection<Person>>(), index++)
+            );
+            var undoManager = new UndoManager<SnapShotAction<Person>>();
+
+
+
+            // Undo スタックに積む
+            undoManager.AddChange(act);
+
+
+        }
+
+
+
+        public void DumpStacks()
+        {
+            Debug.WriteLine("=== UndoStack ===");
+            Debug.WriteLine(undoStack.ToString());
+
+            Debug.WriteLine("=== RedoStack ===");
+            Debug.WriteLine(redoStack.ToString());
+        }
+
+        /// <summary>
+        /// Undo/Redo 対象の共通インターフェース
+        /// </summary>
+        public interface IChangeAction
+        {
+            void Apply();
+            void Revert();
+        }
     }
 }

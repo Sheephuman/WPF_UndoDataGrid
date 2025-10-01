@@ -1,9 +1,10 @@
-﻿using System.Windows.Controls;
+﻿using AdapterInterface;
+using System.Windows.Controls;
 using UndoTransaction_SnapShot.MVVM.Model;
 
 namespace UndoTransaction_SnapShot
 {
-    internal class ChangeRowWithAbstract : ChangeBase
+    internal class ChangeRowWithAbstract : ChangeBase, IChangeAction
     {
 
         private readonly IList<Person> _itemsSource;
