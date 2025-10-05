@@ -21,7 +21,7 @@ namespace UndoTransaction_SnapShot.Generics.Container
     {
         private readonly T? head;
         private readonly ConsCell<T>? tail;
-        private readonly bool isTerminal;
+        public readonly bool isTerminal;
 
         /// <summary>
         /// 空リスト（終端セル）を作成する
@@ -32,7 +32,7 @@ namespace UndoTransaction_SnapShot.Generics.Container
         }
 
 
-        private int _index { get; }
+        public bool _hasMultiValue { get; }
 
 
         /// <summary>
@@ -44,12 +44,20 @@ namespace UndoTransaction_SnapShot.Generics.Container
             this.tail = tail;
         }
 
-        public ConsCell(T value, ConsCell<T> tail, int index)
+        public ConsCell(T value, ConsCell<T> tail, bool hasMultiValue)
         {
             this.head = value;
             this.tail = tail;
-            _index = index;
+            _hasMultiValue = hasMultiValue;
         }
+        public ConsCell(T value, ConsCell<T> tail, ChangeRowWithAbstract changeRows)
+        {
+            this.head = value;
+            this.tail = tail;
+
+
+        }
+
 
         /// <summary>
         /// IEnumerable から ConsCell を構築する
@@ -83,7 +91,8 @@ namespace UndoTransaction_SnapShot.Generics.Container
             get
             {
                 ErrorIfEmpty();
-                if (head is null) throw new ArgumentNullException(nameof(head));
+                if (head is null)
+                    throw new ArgumentNullException(nameof(head));
                 return this.head;
             }
         }
@@ -109,13 +118,7 @@ namespace UndoTransaction_SnapShot.Generics.Container
         /// <summary>
         /// 新しい要素を先頭に追加し、新しい ConsCell を返す
         /// </summary>
-        public ConsCell<T> Push(T head) => new ConsCell<T>(head, this, 0);
-
-        internal ConsCell<T> CompositePush(
-    T head,
-    ConsCell<T> tail
-) => new ConsCell<T>(head, tail);
-
+        public ConsCell<T> Push(T head) => new ConsCell<T>(head, this, false);
 
         /// <summary>
         /// このリストの末尾に別のリストを連結する
@@ -154,7 +157,40 @@ namespace UndoTransaction_SnapShot.Generics.Container
                 }
                 return c;
             }
+            set
+            {
+                value = Count;
+
+            }
+
         }
+
+
+
+
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+
+                ConsCell<T> current = this;
+
+                for (int i = 0; i < index; i++)
+                {
+                    if (current.IsEmpty)
+                        throw new ArgumentOutOfRangeException(nameof(index), "Index exceeds list length.");
+                    current = current.Tail;
+                }
+
+                if (current.IsEmpty)
+                    throw new ArgumentOutOfRangeException(nameof(index), "Index exceeds list length.");
+
+                return current.Head;
+            }
+        }
+
 
 
         /// <summary>
@@ -169,6 +205,17 @@ namespace UndoTransaction_SnapShot.Generics.Container
             }
         }
 
+        public int fromCounter()
+        {
+
+            var sb = new StringBuilder();
+            int idx = 0;
+            foreach (var item in this)
+            {
+                sb.AppendLine($"[{idx++}] {item}");
+            }
+            return idx;
+        }
 
         public override string ToString()
         {
@@ -198,15 +245,7 @@ namespace UndoTransaction_SnapShot.Generics.Container
 
 
 
-        public void Apply()
-        {
-            throw new NotImplementedException();
-        }
 
-        public void Revert()
-        {
-            throw new NotImplementedException();
-        }
 
         public void Add(IChangeAction item)
         {
@@ -251,15 +290,7 @@ namespace UndoTransaction_SnapShot.Generics.Container
             throw new NotImplementedException();
         }
 
-        public void Apply(T target)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void Revert(T target)
-        {
-            throw new NotImplementedException();
-        }
 
 
 
@@ -267,9 +298,4 @@ namespace UndoTransaction_SnapShot.Generics.Container
         #endregion
     }
 
-    internal interface IChangeAction<T>
-    {
-        void Apply(T target);
-        void Revert(T target);
-    }
 }

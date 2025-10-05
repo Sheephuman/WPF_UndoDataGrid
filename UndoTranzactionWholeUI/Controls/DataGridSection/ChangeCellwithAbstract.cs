@@ -8,7 +8,8 @@ namespace UndoTransaction_SnapShot
 
         readonly IList<Person> _itemsorce;
 
-        public ChangeCellwithAbstract(DataGridCellInfo cell, object? oldValue, object? newValue, IList<Person> itemsorce)
+
+        public ChangeCellwithAbstract(DataGridCellInfo cell, object? oldValue, object? newValue, IList<Person> itemsorce, IList<Person> deltaValue)
      : base(cell, oldValue, newValue, itemsorce)
         {
 
@@ -25,6 +26,7 @@ namespace UndoTransaction_SnapShot
         public override void Revert()
         {
             SetCellValue(Cell, OldValue);
+
         }
     }
 }

@@ -75,12 +75,15 @@ namespace WPF_UndoDataGrid
             new Person { Name = "Cathy", Age = 22, City = "Nagoya" },
         };
 
+        List<Person> deltaValue;
 
 
         private void AddRowClick(object sender, RoutedEventArgs e)
         {
             var newPerson = RandomPerson();
 
+            if (IsSealed)
+                deltaValue.Add(newPerson);
 
 
             // Change を作る（行追加なので oldValue = null）
@@ -89,6 +92,10 @@ namespace WPF_UndoDataGrid
                 oldValue: null,
                 newValue: newPerson,
                 itemsSource: People
+
+
+
+
 
             );
             // 2. UndoStack に積む

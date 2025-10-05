@@ -47,6 +47,8 @@ namespace UndoTransaction_SnapShot.CompositeAction
         {
             foreach (var action in _buffer.AsEnumerable().Reverse())
                 action.Revert();
+
+
         }
 
         internal void AddChange(T change)

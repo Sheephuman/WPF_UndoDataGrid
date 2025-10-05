@@ -2,10 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using UndoTransaction_SnapShot.CompositeAction;
 using UndoTransaction_SnapShot.Generics.Container;
 using UndoTransaction_SnapShot.MVVM.Model;
-using UndoTransaction_SnapShot.Patterns.汎用化用.Core;
 
 
 
@@ -28,9 +26,14 @@ namespace UndoTransaction_SnapShot
         public MainWindow()
         {
             InitializeComponent();
+
+
         }
 
-
+        private void Datagrid1_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
         private void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -39,12 +42,16 @@ namespace UndoTransaction_SnapShot
 
         Person _person;
 
-        internal static ChangeTransaction<Person> _trans { get; set; }
+        bool isSnaped;
+
         private void SnapSHotButton_Click(object sender, RoutedEventArgs e)
         {
+            if (changeRows != null)
+                _undoManager.Snap(People, changeRows);
 
-            _undoManager.Snap(People);
 
+            if (SnapshotButton.IsChecked.HasValue)
+                isSnaped = true;
 
 
 
@@ -52,35 +59,79 @@ namespace UndoTransaction_SnapShot
 
         private void UndoButton_Click(object sender, RoutedEventArgs e)
         {
-
-
-            _undoManager.Undo();
+            if (isSnaped)
+                _undoManager.Undo(changeRows);
+            else
+                _undoManager.Undo();
 
             //_undoManager.PopToRedo(change);   // redoStack に積む
         }
 
         private void RedoButton_Click(object sender, RoutedEventArgs e)
         {
-            _undoManager.Redo();
+
+
+            if (isSnaped)
+                _undoManager.Redo(changeRows);
+            else
+                _undoManager.Redo();
+
+
+
         }
+
+        List<Person> deltaValue = new();
+
+        ChangeRowWithAbstract changeRows;
 
         private void AddDataButton_Click(object sender, RoutedEventArgs e)
         {
+
+
+
             _person = PersonCreater.RandomPerson();
 
-            // 1. Change を作成（まだ People に追加しない）
-            var change = new ChangeRowWithAbstract(
-                new DataGridCellInfo(_person, datagrid1.Columns[0]),
-                oldValue: null,
-                newValue: _person,
-                itemsSource: People
-            );
+            bool isHasMultiValue = false;
+            changeRows = new ChangeRowWithAbstract(
+           new DataGridCellInfo(_person, datagrid1.Columns[0]),
+           oldValue: null,
+           newValue: _person,
+           itemsSource: People,
+           deltaValue,
+           isHasMultiValue
+       );
+
+
+            if (!isSnaped)
+            {
+                isHasMultiValue = changeRows._hasMultiValue;
+                deltaValue.Clear();
+            }
+            else
+                deltaValue.Add(_person);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             // 2. UndoManager に積む
-            _undoManager.AddChange(change);
+            _undoManager.AddChange(changeRows);
 
             // 3. Apply で実際に追加
-            change.Apply();
+            changeRows.Apply();
 
             // 4. DataGrid の ItemsSource 更新
             datagrid1.ItemsSource = People;
@@ -95,41 +146,7 @@ namespace UndoTransaction_SnapShot
 
         private void UndoTransActionButton_Click(object sender, RoutedEventArgs e)
         {
-
-
-
-            if (_snapShotStack.IsEmpty) return;
-
-            // 最新スナップショットを取得
-            ObservableCollection<Person> snap = _snapShotStack.Head;
-
-
-
-
-            // DataGrid に書き戻す
-
-            var currentStack = _snapShotStack;
-
-
-
-
-
-            // SnapShotAction を生成して UndoManager に積む
-            var act = new SnapShotAction<Person>(People, currentStack);
-            _undoManager.AddChange(act);
-
-            People.Clear();
-            foreach (var p in snap)
-            {
-                People.Add(new Person { Name = p.Name, Age = p.Age, City = p.City });
-            }
-
-            // _undoManager.ConectUndo(currentStack, snap);
-            // スタックを1つ戻す
-            // _snapShotStack = _snapShotStack.Tail;
-
-
-
+            _undoManager.Undo();
         }
 
 

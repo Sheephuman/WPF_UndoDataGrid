@@ -29,13 +29,15 @@ namespace UndoTransaction_SnapShot.Patterns.Generics.Container
         public void Revert()
         {
             if (_collection is null)
-                return;
-            //  throw new NullReferenceException(nameof(_collection)+ nameof(_collection) +  " is null");
 
-            if (_isAdd)
-                _collection.Remove(_item);
-            else
-                _collection.Add(_item);
+                //  throw new NullReferenceException(nameof(_collection)+ nameof(_collection) +  " is null");
+
+                if (_isAdd)
+                    _collection.Remove(_item);
+                else
+                    _collection.Add(_item);
+
+
         }
 
 

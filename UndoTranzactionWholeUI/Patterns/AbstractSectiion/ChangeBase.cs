@@ -18,15 +18,22 @@ namespace UndoTransaction_SnapShot
         readonly IList<Person> _itemsorce;
 
 
-        protected ChangeBase(DataGridCellInfo cell, object? oldValue, object? newValue, IList<Person> itemSorce)
+        protected ChangeBase(DataGridCellInfo cell, object? oldValue, object? newValue, IList<Person> itemSorce
+          )
         {
             Cell = cell;
             OldValue = oldValue;
             NewValue = newValue;
             _itemsorce = itemSorce;
+
+
+
         }
 
         public abstract void Apply();
+
+
+
         public abstract void Revert();
 
         /// <summary>

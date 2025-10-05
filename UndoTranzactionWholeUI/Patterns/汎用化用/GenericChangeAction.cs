@@ -14,7 +14,14 @@ namespace UndoTransaction_SnapShot.Generics
             _revert = revert;
         }
         public void Apply() => _apply();
-        public void Revert() => _revert();
+        public void Revert()
+        {
+
+            _revert();
+
+
+
+        }
     }
 
 

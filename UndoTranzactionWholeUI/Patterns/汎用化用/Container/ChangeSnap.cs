@@ -20,6 +20,7 @@ namespace UndoTransaction_SnapShot.Generics
         public void Revert()
         {
             _control.Value = _oldValue;
+
         }
     }
 }

@@ -22,6 +22,8 @@ namespace UndoTransaction_SnapShot.Patterns.汎用化用.Core
         public void Revert()
         {
             _collection.Remove(_item);
+
+
         }
     }
 }

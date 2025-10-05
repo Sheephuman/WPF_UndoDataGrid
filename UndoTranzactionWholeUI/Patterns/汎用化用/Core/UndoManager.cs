@@ -28,8 +28,8 @@ namespace UndoTransaction_SnapShot
             index++;
             redoStack = new ConsCell<T>(); // 新規操作でRedoはクリア
 
-            DumpStacks();
 
+            DumpStacks();
 
         }
 
@@ -42,11 +42,57 @@ namespace UndoTransaction_SnapShot
                 return;
 
             T change = undoStack.Head;
+
+
             change.Revert();
 
 
             undoStack = undoStack.Tail;
+
+            if (!undoStack.IsEmpty && !undoStack.Tail.IsEmpty)
+                Debug.WriteLine("Undo要素数:" + undoStack.Count());
+
             redoStack = redoStack.Push(change);
+        }
+
+        public void Undo(ChangeRowWithAbstract changeRows)
+        {
+            int PreviousCount = undoStack.Count - 1;
+
+            if (undoStack.IsEmpty)
+                return;
+
+            T change = undoStack.Head;
+
+
+            change.Revert();
+
+
+
+            for (int i = 1; undoStack.Count > i; i++)
+                undoStack = undoStack.Tail;
+
+
+            //    Debug.WriteLine($"{undoStack.Count:番目}" + undoStack[undoStack.Count - 1].ToString());
+
+            Debug.WriteLine(undoStack.ToString());
+
+
+
+            int Stackindex = redoStack.fromCounter();
+
+            Debug.WriteLine("Undo要素数:" + undoStack.Count());
+
+            Debug.WriteLine("--------");
+
+            Debug.WriteLine("redoStack要素数" + redoStack.Count());
+            //for (int x = 0; changeRows._deltaValue.Count > x;)
+            //{
+
+            if (Stackindex == 0)
+                redoStack = redoStack.Push(change);
+
+
         }
 
         /// <summary>
@@ -60,13 +106,49 @@ namespace UndoTransaction_SnapShot
             T change = redoStack.Head;
             change.Apply();
             redoStack = redoStack.Tail;
+
+
+
             undoStack = undoStack.Push(change);
         }
 
+        public void Redo(ChangeRowWithAbstract changeRow)
+        {
+            if (redoStack.IsEmpty)
+                return;
+
+            T change = redoStack.Head;
+
+
+            Debug.WriteLine("redoStack要素数" + redoStack.Count());
+
+            changeRow.ApplyMultiValues();
+
+            redoStack = redoStack.Tail;
+
+            undoStack = undoStack.Push(change);
+
+        }
+
+
         int index = 0;
 
-        internal void Snap(ObservableCollection<Person> people)
+        internal void Snap(ObservableCollection<Person> people, ChangeRowWithAbstract changeRow)
         {
+
+
+            if (changeRow is null)
+                return;
+
+
+            if (changeRow._deltaValue is null)
+                return;
+
+
+
+            changeRow._deltaValue.Clear();
+
+            changeRow._hasMultiValue = true;
 
             // その時点の People をディープコピー
             var copy = new ObservableCollection<Person>(
@@ -79,8 +161,11 @@ namespace UndoTransaction_SnapShot
             // SnapShotAction にラップして渡す
             var act = new SnapShotAction<Person>(
                 people,
-                new ConsCell<ObservableCollection<Person>>(copy, new ConsCell<ObservableCollection<Person>>(), index++)
+                new ConsCell<ObservableCollection<Person>>(copy, new ConsCell<ObservableCollection<Person>>())
             );
+
+
+
             var undoManager = new UndoManager<SnapShotAction<Person>>();
 
 
@@ -102,13 +187,16 @@ namespace UndoTransaction_SnapShot
             Debug.WriteLine(redoStack.ToString());
         }
 
-        /// <summary>
-        /// Undo/Redo 対象の共通インターフェース
-        /// </summary>
-        public interface IChangeAction
+        public void DumpUndoStacks()
         {
-            void Apply();
-            void Revert();
+            Debug.WriteLine("=== UndoStack ===");
+            Debug.WriteLine(undoStack.ToString());
         }
+        public void DumpRedoStacks()
+        {
+            Debug.WriteLine("=== RedoStack ===");
+            Debug.WriteLine(redoStack.ToString());
+        }
+
     }
 }

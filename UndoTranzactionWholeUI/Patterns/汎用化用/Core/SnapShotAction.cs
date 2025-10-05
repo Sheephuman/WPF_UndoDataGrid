@@ -29,6 +29,7 @@ namespace UndoTransaction_SnapShot.Patterns.汎用化用.Core
             // ConsCell なら Previous にたどって戻せる
             if (_snapShot.Tail != null && !prev.IsEmpty)
                 Restore(_snapShot.Tail.Head);
+
         }
 
         private void Restore(ObservableCollection<T> snapshot)
