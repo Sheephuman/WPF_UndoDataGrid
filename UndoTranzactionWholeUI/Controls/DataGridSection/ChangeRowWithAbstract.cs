@@ -12,7 +12,7 @@ namespace UndoTransaction_SnapShot
         public bool _hasMultiValue;
         public readonly List<Person> _deltaValue;
 
-        public bool IsSnaped { get; }
+        public bool _isHasMultiValue { get; }
 
 
         public ChangeRowWithAbstract(DataGridCellInfo cell, object? oldValue, object? newValue, IList<Person> itemsSource)
@@ -33,14 +33,15 @@ namespace UndoTransaction_SnapShot
         {
             _itemsSource = itemsSource;
             _deltaValue = deltaValue;
-            IsSnaped = isSnaped;
+            _isHasMultiValue = isSnaped;
         }
 
 
-        public void ApplyMultiValues()
+        public void ApplyMultiValuesn()
         {
             if (_deltaValue.Count > 0)
                 _itemsSource.AddColections(NewValue, _deltaValue);
+
 
         }
 
@@ -48,28 +49,18 @@ namespace UndoTransaction_SnapShot
         {
             if (NewValue is null) throw new ArgumentNullException(nameof(NewValue));
 
-            //if (_hasMultiValue )
-            //{
-            //    _itemsSource.AddColections(NewValue, _deltaValue);
-            //}
-            //else
+
             _itemsSource.Add((Person)NewValue);
         }
+
 
         public override void Revert()
         {
 
             if (OldValue == null && NewValue != null)
             {
-                if (_deltaValue.Count > 0)
-                {
-                    _itemsSource.RemoveColections(NewValue, _deltaValue);
 
-
-                }
-
-                else
-                    _itemsSource.Remove((Person)NewValue);
+                _itemsSource.Remove((Person)NewValue);
 
             }
             else
@@ -79,6 +70,7 @@ namespace UndoTransaction_SnapShot
             }
 
         }
+
 
 
     }

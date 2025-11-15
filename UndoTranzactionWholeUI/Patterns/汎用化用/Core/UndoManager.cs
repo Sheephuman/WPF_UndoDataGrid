@@ -19,6 +19,9 @@ namespace UndoTransaction_SnapShot
         // Redo用のスタック
         private ConsCell<T> redoStack = new ConsCell<T>();
 
+
+
+
         /// <summary>
         /// 新しい操作を追加
         /// </summary>
@@ -36,97 +39,43 @@ namespace UndoTransaction_SnapShot
         /// <summary>
         /// Undo: 最新の変更を元に戻す
         /// </summary>
+
+
         public void Undo()
         {
+
             if (undoStack.IsEmpty)
                 return;
 
             T change = undoStack.Head;
 
-
             change.Revert();
-
 
             undoStack = undoStack.Tail;
 
-            if (!undoStack.IsEmpty && !undoStack.Tail.IsEmpty)
-                Debug.WriteLine("Undo要素数:" + undoStack.Count());
+
+
 
             redoStack = redoStack.Push(change);
-        }
-
-        public void Undo(ChangeRowWithAbstract changeRows)
-        {
-            int PreviousCount = undoStack.Count - 1;
-
-            if (undoStack.IsEmpty)
-                return;
-
-            T change = undoStack.Head;
-
-
-            change.Revert();
-
-
-
-            for (int i = 1; undoStack.Count > i; i++)
-                undoStack = undoStack.Tail;
-
-
-            //    Debug.WriteLine($"{undoStack.Count:番目}" + undoStack[undoStack.Count - 1].ToString());
-
-            Debug.WriteLine(undoStack.ToString());
-
-
-
-            int Stackindex = redoStack.fromCounter();
-
-            Debug.WriteLine("Undo要素数:" + undoStack.Count());
-
-            Debug.WriteLine("--------");
-
-            Debug.WriteLine("redoStack要素数" + redoStack.Count());
-            //for (int x = 0; changeRows._deltaValue.Count > x;)
-            //{
-
-            if (Stackindex == 0)
-                redoStack = redoStack.Push(change);
-
 
         }
 
-        /// <summary>
-        /// Redo: Undoした変更を再適用
-        /// </summary>
+
+
+
+
+
         public void Redo()
         {
             if (redoStack.IsEmpty)
                 return;
 
             T change = redoStack.Head;
+
             change.Apply();
             redoStack = redoStack.Tail;
-
-
-
             undoStack = undoStack.Push(change);
-        }
 
-        public void Redo(ChangeRowWithAbstract changeRow)
-        {
-            if (redoStack.IsEmpty)
-                return;
-
-            T change = redoStack.Head;
-
-
-            Debug.WriteLine("redoStack要素数" + redoStack.Count());
-
-            changeRow.ApplyMultiValues();
-
-            redoStack = redoStack.Tail;
-
-            undoStack = undoStack.Push(change);
 
         }
 

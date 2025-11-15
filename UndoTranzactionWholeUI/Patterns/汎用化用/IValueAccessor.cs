@@ -8,6 +8,7 @@
     public interface IChangeAction
     {
         void Apply();  // Redo 相当
+        void Replace();
         void Revert(); // Undo 相当
     }
 

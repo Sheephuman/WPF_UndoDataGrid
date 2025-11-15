@@ -100,7 +100,7 @@
                   CanUserAddRows="False"
                   ItemsSource="{Binding People}"
                   
-                  CellEditEnding="OnCellEditEnding">
+                  CellEditEnding="CellEditEnding">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="2*"/>
                 <DataGridTextColumn Header="Age"  Binding="{Binding Age,  UpdateSourceTrigger=LostFocus}" Width="*"/>

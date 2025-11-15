@@ -93,10 +93,6 @@ namespace WPF_UndoDataGrid
                 newValue: newPerson,
                 itemsSource: People
 
-
-
-
-
             );
             // 2. UndoStack に積む
             change.Apply();                              // 3. 実際に People に追加
